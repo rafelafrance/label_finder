@@ -1,17 +1,16 @@
 import csv
-import os
 from argparse import Namespace
 from pathlib import Path
 
 from tqdm import tqdm
 
-from .. import sheet_util
+from finder.pylib import sheet_util
 
 
 def build(args: Namespace) -> None:
-    os.makedirs(args.yolo_images, exist_ok=True)
+    args.yolo_images.mkdirs(exist_ok=True)
 
-    with open(args.sheet_csv) as csv_file:
+    with args.sheet_csv.open() as csv_file:
         reader = csv.DictReader(csv_file)
         sheets = [r["path"] for r in reader]
 

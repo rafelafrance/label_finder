@@ -1,5 +1,4 @@
 import csv
-import os
 from argparse import Namespace
 from collections import defaultdict
 from pathlib import Path
@@ -7,12 +6,12 @@ from pathlib import Path
 import numpy as np
 from tqdm import tqdm
 
-from .. import const, sheet_util
+from finder.pylib import const, sheet_util
 
 
 def build(args: Namespace) -> None:
-    os.makedirs(args.yolo_images, exist_ok=True)
-    os.makedirs(args.yolo_labels, exist_ok=True)
+    args.yolo_images.mkdir(exist_ok=True)
+    args.yolo_labels.mkdir(exist_ok=True)
 
     sheets = get_sheets(args.label_csv)
 
@@ -24,7 +23,7 @@ def build(args: Namespace) -> None:
 
 
 def get_sheets(label_csv) -> dict[list[dict]]:
-    with open(label_csv) as csv_file:
+    with label_csv.open() as csv_file:
         reader = csv.DictReader(csv_file)
         sheets = defaultdict(list)
         for label in reader:
@@ -44,8 +43,8 @@ def write_labels(text_path, labels, image_size):
     )
     width, height = image_size
     boxes = to_yolo_format(boxes, width, height)
-    with open(text_path, "w") as txt_file:
-        for label_class, box in zip(classes, boxes):
+    with text_path.open("w") as txt_file:
+        for label_class, box in zip(classes, boxes, strict=False):
             label_class = const.CLASS2INT[label_class]
             bbox = np.array2string(box, formatter={"float_kind": lambda x: "%.6f" % x})
             line = f"{label_class} {bbox[1:-1]}\n"
@@ -53,7 +52,8 @@ def write_labels(text_path, labels, image_size):
 
 
 def to_yolo_format(bboxes, sheet_width, sheet_height):
-    """Convert bounding boxes to YOLO format.
+    """
+    Convert bounding boxes to YOLO format.
 
     center x, center y, width, height
     convert to fraction of the image size

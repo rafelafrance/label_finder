@@ -36,16 +36,16 @@ class Subject:
     boxes: np.ndarray = field(default_factory=lambda: np.empty((0, 4), dtype=np.int32))
     types: np.ndarray = field(default_factory=lambda: np.array([], dtype=np.str_))
     merged_boxes: np.ndarray = field(
-        default_factory=lambda: np.empty((0, 4), dtype=np.int32)
+        default_factory=lambda: np.empty((0, 4), dtype=np.int32),
     )
     merged_types: np.ndarray = field(
-        default_factory=lambda: np.array([], dtype=np.str_)
+        default_factory=lambda: np.array([], dtype=np.str_),
     )
     removed_boxes: np.ndarray = field(
-        default_factory=lambda: np.empty((0, 4), dtype=np.int32)
+        default_factory=lambda: np.empty((0, 4), dtype=np.int32),
     )
     removed_types: np.ndarray = field(
-        default_factory=lambda: np.array([], dtype=np.str_)
+        default_factory=lambda: np.array([], dtype=np.str_),
     )
 
     @staticmethod
@@ -65,7 +65,8 @@ class Subject:
             self._filter_merged_boxes()
 
     def _remove_unlabeled(self):
-        """Remove solo boxes that have no labels.
+        """
+        Remove solo boxes that have no labels.
 
         Sometimes people draw a box around the wrong thing like a plant part or an
         empty part of the sheet etc. This function tries to remove those boxes. It is
@@ -85,7 +86,8 @@ class Subject:
         self._remove_boxes(groups, removes)
 
     def remove_multi_labels(self):
-        """Remove bounding boxes that contain multiple labels.
+        """
+        Remove bounding boxes that contain multiple labels.
 
         Sometimes people draw a bounding box around more than one label, this function
         tries to correct that by removing the outer bounding box and seeing if that
@@ -132,7 +134,10 @@ class Subject:
         max_ = [np.max(g, axis=0).round() for g in box_groups]
         self.merged_boxes = cast(
             np.ndarray[Any, Any],
-            [np.hstack((mn[:2], mx[2:])).tolist() for mn, mx in zip(min_, max_)],
+            [
+                np.hstack((mn[:2], mx[2:])).tolist()
+                for mn, mx in zip(min_, max_, strict=False)
+            ],
         )
 
         # Select box type for the merged box
@@ -145,7 +150,7 @@ class Subject:
         """Remove degenerate merged boxes."""
         boxes = []
         types = []
-        for box, type_ in zip(self.merged_boxes, self.merged_types):
+        for box, type_ in zip(self.merged_boxes, self.merged_types, strict=False):
             if box[2] - box[0] >= threshold and box[3] - box[1] >= threshold:
                 boxes.append(box)
                 types.append(type_)

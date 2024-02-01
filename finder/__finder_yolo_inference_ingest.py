@@ -3,7 +3,7 @@ import argparse
 import textwrap
 from pathlib import Path
 
-from pylib import log
+from util.pylib import log
 
 from old import inference_ingest_yolo
 
@@ -19,7 +19,8 @@ def parse_args():
     description = """Read in YOLO inference results."""
 
     arg_parser = argparse.ArgumentParser(
-        description=textwrap.dedent(description), fromfile_prefix_chars="@"
+        description=textwrap.dedent(description),
+        fromfile_prefix_chars="@",
     )
 
     arg_parser.add_argument(

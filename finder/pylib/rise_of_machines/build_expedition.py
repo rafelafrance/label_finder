@@ -1,77 +1,78 @@
-import csv
-import os
+# import csv
 import warnings
-from argparse import Namespace
+
+# from argparse import Namespace
 from pathlib import Path
 
 import torch
 from PIL import Image, ImageDraw
-from tqdm import tqdm
 
-from ... import box_calc
-from ...db import db
+# from tqdm import tqdm
+from finder.pylib import old_box_calc as box_calc
 
-
-def build(args: Namespace) -> None:
-    os.makedirs(args.expedition_dir, exist_ok=True)
-
-    sheet_sql = """
-        select * from sheets
-        where sheet_id in (
-            select distinct sheet_id from labels
-            where label_set = :label_set
-        )
-        order by random()
-        limit :limit
-        """
-
-    csv_path = args.expedition_dir / "manifest.csv"
-    with db.connect(args.database) as cxn, open(csv_path, "w") as csv_file:
-        writer = csv.writer(csv_file)
-
-        writer.writerow(
-            "sheet_id image reduced_by label_set label_conf database".split()
-        )
-
-        run_id = db.insert_run(cxn, args)
-
-        sheets = db.select(cxn, sheet_sql, label_set=args.label_set, limit=args.limit)
-        for sheet in tqdm(sheets):
-            labels = select_labels(cxn, sheet, args.label_set, args.label_conf)
-            labels = filter_labels(labels)
-
-            image = create_sheet_image(sheet["path"], labels, args.reduce_by)
-            name = save_image(image, sheet, args.expedition_dir)
-
-            writer.writerow(
-                [
-                    sheet["sheet_id"],
-                    name,
-                    args.reduce_by,
-                    args.label_set,
-                    args.label_conf,
-                    args.database,
-                ]
-            )
-
-        db.update_run_finished(cxn, run_id)
+# from finder.db import db
 
 
-def select_labels(cxn, sheet, label_set, label_conf):
-    label_sql = """
-        select * from labels
-        where sheet_id = :sheet_id
-        and label_set = :label_set
-        and label_conf >= :label_conf
-        """
-    labels = db.select(
-        cxn,
-        label_sql,
-        sheet_id=sheet["sheet_id"],
-        label_set=label_set,
-        label_conf=label_conf,
-    )
-    return list(labels)
+# def build(args: Namespace) -> None:
+#     args.expedition_dir.mkdir(parents=True, exist_ok=True)
+#
+#     sheet_sql = """
+#         select * from sheets
+#         where sheet_id in (
+#             select distinct sheet_id from labels
+#             where label_set = :label_set
+#         )
+#         order by random()
+#         limit :limit
+#         """
+#
+#     csv_path = args.expedition_dir / "manifest.csv"
+#     with db.connect(args.database) as cxn, csv_path.open("w") as csv_file:
+#         writer = csv.writer(csv_file)
+#
+#         writer.writerow(
+#             "sheet_id image reduced_by label_set label_conf database".split(),
+#         )
+#
+#         run_id = db.insert_run(cxn, args)
+#
+#         sheets = db.select(cxn, sheet_sql, label_set=args.label_set, limit=args.limit)
+#         for sheet in tqdm(sheets):
+#             labels = select_labels(cxn, sheet, args.label_set, args.label_conf)
+#             labels = filter_labels(labels)
+#
+#             image = create_sheet_image(sheet["path"], labels, args.reduce_by)
+#             name = save_image(image, sheet, args.expedition_dir)
+#
+#             writer.writerow(
+#                 [
+#                     sheet["sheet_id"],
+#                     name,
+#                     args.reduce_by,
+#                     args.label_set,
+#                     args.label_conf,
+#                     args.database,
+#                 ],
+#             )
+#
+#         db.update_run_finished(cxn, run_id)
+
+
+# def select_labels(cxn, sheet, label_set, label_conf):
+#     label_sql = """
+#         select * from labels
+#         where sheet_id = :sheet_id
+#         and label_set = :label_set
+#         and label_conf >= :label_conf
+#         """
+#     labels = db.select(
+#         cxn,
+#         label_sql,
+#         sheet_id=sheet["sheet_id"],
+#         label_set=label_set,
+#         label_conf=label_conf,
+#     )
+#     return list(labels)
 
 
 def filter_labels(labels, threshold=0.4):

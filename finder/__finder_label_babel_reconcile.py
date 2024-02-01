@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Reconcile data from a "Label Babel" expedition.
+"""
+Reconcile data from a "Label Babel" expedition.
 
 We need training data for the label finder model. We use volunteers to build the
 initial batch of training data. That is, we use a Zooniverse "Notes from Nature"
@@ -16,8 +17,8 @@ import argparse
 import textwrap
 from pathlib import Path
 
-from pylib import log
 from pylib.rise_of_machines import reconcile_expedition
+from util.pylib import log
 
 
 def main():
@@ -37,7 +38,8 @@ def parse_args() -> argparse.Namespace:
     script to reconcile the differences into a single "best" label."""
 
     arg_parser = argparse.ArgumentParser(
-        description=textwrap.dedent(description), fromfile_prefix_chars="@"
+        description=textwrap.dedent(description),
+        fromfile_prefix_chars="@",
     )
 
     arg_parser.add_argument(

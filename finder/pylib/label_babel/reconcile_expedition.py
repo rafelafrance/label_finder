@@ -1,4 +1,3 @@
-import csv
 from argparse import Namespace
 from collections import defaultdict
 
@@ -6,27 +5,27 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from ...db import db
-from ...subject import Subject
+from finder.pylib.old_subject import Subject
 
 
 def reconcile(args: Namespace) -> None:
-    with db.connect(args.database) as cxn:
-        run_id = db.insert_run(cxn, args)
-
-        with open(args.unreconciled_csv) as csv_file:
-            reader = csv.DictReader(csv_file)
-            classifications = list(reader)
-
-        subjects = get_subjects(classifications)
-
-        for subject in tqdm(subjects):
-            subject.merge_box_groups()
-
-        df = get_reconciled_boxes(subjects, args.reconciled_set)
-        df.to_sql("label_train", cxn, if_exists="append", index=False)
-
-        db.update_run_finished(cxn, run_id)
+    ...
+    # with db.connect(args.database) as cxn:
+    #     run_id = db.insert_run(cxn, args)
+    #
+    #     with args.unreconciled_csv.open() as csv_file:
+    #         reader = csv.DictReader(csv_file)
+    #         classifications = list(reader)
+    #
+    #     subjects = get_subjects(classifications)
+    #
+    #     for subject in tqdm(subjects):
+    #         subject.merge_box_groups()
+    #
+    #     df = get_reconciled_boxes(subjects, args.reconciled_set)
+    #     df.to_sql("label_train", cxn, if_exists="append", index=False)
+    #
+    #     db.update_run_finished(cxn, run_id)
 
 
 def get_reconciled_boxes(subjects, reconciled_set):
@@ -41,9 +40,10 @@ def get_reconciled_boxes(subjects, reconciled_set):
         classes = subject.merged_types
 
         if len(boxes) != len(classes):
-            raise ValueError(f"Malformed subject {subject.subject_id}")
+            msg = f"Malformed subject {subject.subject_id}"
+            raise ValueError(msg)
 
-        for box, cls in zip(boxes, classes):
+        for box, cls in zip(boxes, classes, strict=False):
             rec_boxes.append(
                 {
                     "sheet_id": subject.sheet_id,
@@ -53,7 +53,7 @@ def get_reconciled_boxes(subjects, reconciled_set):
                     "train_top": box[1],
                     "train_right": box[2],
                     "train_bottom": box[3],
-                }
+                },
             )
 
     df = pd.DataFrame(rec_boxes)

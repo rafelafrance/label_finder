@@ -26,6 +26,7 @@
 __pycache__
 .ipynb_checkpoints/
 *.egg-info/
+dist/
 
 # Environment
 .venv/
@@ -37,13 +38,11 @@ notes/
 
 # Temp files
 temp/
-junk*
 runs/
-
-# Experiments
 scratch/
 old/
 experiments/
+junk*
 
 # spacy stuff
 model-best/

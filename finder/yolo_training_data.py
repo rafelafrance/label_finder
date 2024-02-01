@@ -3,8 +3,8 @@ import argparse
 import textwrap
 from pathlib import Path
 
-from pylib import log
 from pylib.yolo import training_data
+from util.pylib import log
 
 
 def main():
@@ -29,7 +29,7 @@ def parse_args():
                 * "right": The label's right most pixel.
                 * "bottom": The label's bottom most pixel.
             If the class is empty then the sheet has no labels.
-            """
+            """,
         ),
     )
 

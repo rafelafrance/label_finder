@@ -5,7 +5,7 @@ import re
 import textwrap
 from pathlib import Path
 
-from pylib import log
+from util.pylib import log
 
 
 def main():
@@ -25,10 +25,11 @@ def main():
         elif src == dst:
             new.append(src)
         else:
-            logging.error(f"Could not rename {src} because {dst} already exists.")
+            msg = f"Could not rename {src} because {dst} already exists."
+            logging.error(msg)
 
     if args.sheet_csv:
-        with open(args.sheet_csv, "w") as out:
+        with args.sheet_csv.open("w") as out:
             out.write("path\n")
             for path in sorted(new):
                 out.write(f"{path}\n")
@@ -44,7 +45,7 @@ def parse_args():
             """
             Fix odd file names and create a CSV file of them.
             Backup your input images before using.
-            """
+            """,
         ),
     )
 

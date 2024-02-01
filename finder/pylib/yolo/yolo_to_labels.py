@@ -1,17 +1,16 @@
 import csv
-import os
 from pathlib import Path
 
 from tqdm import tqdm
 
-from .. import const, sheet_util
+from finder.pylib import const, sheet_util
 
 
 def to_labels(args):
-    os.makedirs(args.label_dir, exist_ok=True)
+    args.label_dir.mkdir(exist_ok=True)
 
     sheet_paths = {}
-    with open(args.sheet_csv) as f:
+    with args.sheet_csv.open() as f:
         for row in csv.DictReader(f):
             path = Path(row["path"])
             sheet_paths[path.stem] = path
@@ -24,7 +23,7 @@ def to_labels(args):
 
         sheet_image = sheet_util.sheet_image(sheet_path)
 
-        with open(label_path) as lb:
+        with label_path.open() as lb:
             lines = lb.readlines()
 
         stem = label_path.stem

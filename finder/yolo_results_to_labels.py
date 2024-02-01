@@ -3,8 +3,8 @@ import argparse
 import textwrap
 from pathlib import Path
 
-from pylib import log
 from pylib.yolo import yolo_to_labels
+from util.pylib import log
 
 
 def main():
@@ -23,7 +23,7 @@ def parse_args():
             This script converts YOLO results to label images.
             Required CSV columns:
                 * "path": A path to the herbarium sheet image.
-           """
+           """,
         ),
     )
 

@@ -3,8 +3,8 @@ import argparse
 import textwrap
 from pathlib import Path
 
-from pylib import log
 from pylib.yolo import inference_data
+from util.pylib import log
 
 
 def main():
@@ -23,7 +23,7 @@ def parse_args():
             Prepare label inference data into a format for YOLO model inference.
             Required CSV columns:
                 * "path": A path to the herbarium sheet image.
-            """
+            """,
         ),
     )
 

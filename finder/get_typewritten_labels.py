@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 import argparse
-import os
 import shutil
 import textwrap
 from pathlib import Path
 
-from pylib import log
+from util.pylib import log
 
 
 def main():
@@ -20,17 +19,11 @@ def main():
 
 
 def by_class(label_dir):
-    typewritten = []
-
-    for path in label_dir.glob("*"):
-        if path.stem.find("_Typewritten_") > -1:
-            typewritten.append(path)
-
-    return typewritten
+    return [p for p in label_dir.glob("*") if p if p.stem.find("_Typewritten_") > -1]
 
 
 def move_labels(typewritten, typewritten_dir):
-    os.makedirs(typewritten_dir, exist_ok=True)
+    typewritten_dir.mkdir(exist_ok=True)
 
     for src in typewritten:
         dst = typewritten_dir / src.name

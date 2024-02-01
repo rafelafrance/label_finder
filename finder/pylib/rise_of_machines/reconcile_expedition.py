@@ -1,19 +1,22 @@
 import csv
 from collections import defaultdict
 from dataclasses import dataclass, field
-from pathlib import Path
 
+# from pathlib import Path
 import numpy as np
 import torch
 
-from ... import box_calc as calc
-from ...db import db
+from finder.pylib import old_box_calc as calc
+
+# from finder.db import db
+
+TOO_FEW = 2
 
 
 class Classifications(defaultdict):
     def __init__(self, unreconciled_csv):
         super().__init__(list)
-        with open(unreconciled_csv) as csv_file:
+        with unreconciled_csv.open() as csv_file:
             reader = csv.DictReader(csv_file)
             rows = list(reader)
         for row in rows:
@@ -47,23 +50,26 @@ class Point:
 
 
 class Sheets:
-    def __init__(self, cxn, points, label_conf, label_set):
+    def __init__(self):  # , cxn, points, label_conf, label_set):
         self.sheets: dict[str, Sheet] = {}
-        labels = db.canned_select(
-            cxn, "labels", label_set=label_set, label_conf=label_conf
-        )
-        for label_rec in labels:
-            name = Path(label_rec["path"]).name
-            if name in points:
-                if name not in self.sheets:
-                    self.sheets[name] = Sheet(label_rec)
-                self.sheets[name].add_old_label(label_rec)
-        for sheet in self.sheets.values():
-            sheet.filter_labels()
+        # labels = db.canned_select(
+        #     cxn,
+        #     "labels",
+        #     label_set=label_set,
+        #     label_conf=label_conf,
+        # )
+        # for label_rec in labels:
+        #     name = Path(label_rec["path"]).name
+        #     if name in points:
+        #         if name not in self.sheets:
+        #             self.sheets[name] = Sheet(label_rec)
+        #         self.sheets[name].add_old_label(label_rec)
+        # for sheet in self.sheets.values():
+        #     sheet.filter_labels()
 
     def build_new_labels(self, points):
         for path, point in points.items():
-            if not point.missing or len(point.missing) < 2:
+            if not point.missing or len(point.missing) < TOO_FEW:
                 continue
             if path in self.sheets:
                 sheet = self.sheets[path]
@@ -79,11 +85,11 @@ class Sheets:
             for label in sheet.old_labels:
                 label.reclassify()
 
-    def insert(self, cxn, sheet_set, train_set):
-        db.canned_delete(cxn, "sheets", sheet_set=sheet_set)
-        db.canned_delete(cxn, "label_train", train_set=train_set)
-        for sheet in self.sheets.values():
-            sheet.insert(cxn, sheet_set, train_set)
+    # def insert(self, cxn, sheet_set, train_set):
+    #     db.canned_delete(cxn, "sheets", sheet_set=sheet_set)
+    #     db.canned_delete(cxn, "label_train", train_set=train_set)
+    #     for sheet in self.sheets.values():
+    #         sheet.insert(cxn, sheet_set, train_set)
 
 
 class Sheet:
@@ -103,7 +109,7 @@ class Sheet:
                 label_top=label_rec["label_top"],
                 label_right=label_rec["label_right"],
                 label_bottom=label_rec["label_bottom"],
-            )
+            ),
         )
 
     def filter_labels(self, threshold=0.4):
@@ -159,29 +165,30 @@ class Sheet:
                 return label
         return None
 
-    def insert(self, cxn, sheet_set, train_set):
-        sql = """
-            insert into sheets
-                   ( sheet_set,  path,  width,  height,  core_id,  split)
-            values (:sheet_set, :path, :width, :height, :core_id, :split)
-            returning sheet_id
-            """
-        sheet_id = cxn.execute(
-            sql,
-            {
-                "sheet_set": sheet_set,
-                "path": self.path,
-                "width": self.width,
-                "height": self.height,
-                "core_id": self.core_id,
-                "split": "",
-            },
-        ).fetchone()[0]
-
-        batch = []
-        for label in self.old_labels + self.new_labels:
-            batch.append(label.build_insert(sheet_id, self, train_set))
-        db.canned_insert(cxn, "label_train", batch)
+    # def insert(self, cxn, sheet_set, train_set):
+    #     sql = """
+    #         insert into sheets
+    #                ( sheet_set,  path,  width,  height,  core_id,  split)
+    #         values (:sheet_set, :path, :width, :height, :core_id, :split)
+    #         returning sheet_id
+    #         """
+    #     sheet_id = cxn.execute(
+    #         sql,
+    #         {
+    #             "sheet_set": sheet_set,
+    #             "path": self.path,
+    #             "width": self.width,
+    #             "height": self.height,
+    #             "core_id": self.core_id,
+    #             "split": "",
+    #         },
+    #     ).fetchone()[0]
+    #
+    #     batch = [
+    #         lb.build_insert(sheet_id, self, train_set)
+    #         for lb in self.old_labels + self.new_labels
+    #     ]
+    #     db.canned_insert(cxn, "label_train", batch)
 
 
 @dataclass()
@@ -214,15 +221,15 @@ class Label:
         return label
 
 
-def reconcile(args):
-    with db.connect(args.database) as cxn:
-        run_id = db.insert_run(cxn, args)
-
-        classifications = Classifications(args.unreconciled_csv)
-        points = Points(classifications, args.increase_by)
-        sheets = Sheets(cxn, points, args.label_conf, args.label_set)
-        sheets.reclassify_old_labels(points)
-        sheets.build_new_labels(points)
-        sheets.insert(cxn, args.sheet_set, args.train_set)
-
-        db.update_run_finished(cxn, run_id)
+# def reconcile(args):
+#     with db.connect(args.database) as cxn:
+#         run_id = db.insert_run(cxn, args)
+#
+#         classifications = Classifications(args.unreconciled_csv)
+#         points = Points(classifications, args.increase_by)
+#         sheets = Sheets(cxn, points, args.label_conf, args.label_set)
+#         sheets.reclassify_old_labels(points)
+#         sheets.build_new_labels(points)
+#         sheets.insert(cxn, args.sheet_set, args.train_set)
+#
+#         db.update_run_finished(cxn, run_id)
