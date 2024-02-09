@@ -12,16 +12,14 @@ We find labels with a custom trained YOLOv7 model (https://github.com/WongKinYiu
 - All other identified labels are outlined in teal.
 
 Local scripts:
-- `build_training_data.py`: This formats images of herbarium sheets to prepare them for training a YOLO model.
+- `fix-herbarium-sheet-names`: I had a problem where herbarium sheet file names were given as URLs and it confused the Pillow (PIL) module so I renamed the files to remove problem characters. You may not need this script.
+- `yolo-training`: If you are training your own YOLO7 model then you may want to use this script to prepare the images of herbarium sheets for training. The herbarim images may be in all sorts of sizes, and model training requires that they're all uniformly sized.
   - This script also requires a CSV file containing the paths to the herbarium sheets and the class and location of the labels on that sheet.
-- `build_inference_data.py`: This formats herbarium sheet images for YOLO inference.
-  - It requires a CSV file containing the paths to all of the herbarium sheets.
-- `results_to_labels.py`: This takes for output of the YOLO model and creates label images. The label name contains information about the YOLO results. The label name format:
+- `yolo-inference`: Prepare herbarium sheet image for inference; i.e. finding labels. The images must be in the same size the training data.
+- `yolo-results-to-labels`: This takes for output of the YOLO model and creates label images. The label name contains information about the YOLO results. The label name format:
   - `<sheet name>_<label class>_<left pixel>_<top pixel>_<right pixel>_<bottom pixel>.jpg`
   - For example: `my-herbarium-sheet_typewritten_2261_3580_3397_4611.jpg`
-- `filter_labels.py`: Move typewritten label images into a separate directory.
-- `fix_file_names.py`: I had a problem where herbarium sheet file names were given as URLs and it confused the Pillow (PIL) module so I renamed the files to remove problem characters. You probably won't need this.
-- `old_*.py`: These modules are for ingesting training data from Zooniverse "expeditions". They are old and need to be rewritten.
+- `filter_labels.py`: Move typewritten label images into a separate directory that are then available for further processing.
 
 You will notice that there are no scripts for running the YOLO models directly. You will need to download that repository separately and run its scripts. Example invocations of YOLO scripts are below:
 

@@ -3,8 +3,9 @@ import argparse
 import textwrap
 from pathlib import Path
 
-from pylib.yolo import training_data
 from util.pylib import log
+
+from finder.pylib.yolo import training_data
 
 
 def main():

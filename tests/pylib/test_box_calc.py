@@ -5,7 +5,7 @@ import numpy as np
 import numpy.testing as npt
 import torch
 
-import finder.pylib.old_box_calc as calc
+from finder.pylib import old_box_calc as calc
 
 
 class TestBoxCalc(unittest.TestCase):
@@ -22,7 +22,7 @@ class TestBoxCalc(unittest.TestCase):
         self.assertEqual(calc.iou(box1, box2), 0.0)
 
     def test_iou_03(self):
-        """It handles one box inside of another box."""
+        """It handles one box inside another box."""
         box1 = [0, 0, 10, 10]
         box2 = [0, 0, 5, 5]
         ii1 = 10.0 * 10.0

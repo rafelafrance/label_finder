@@ -17,8 +17,9 @@ import argparse
 import textwrap
 from pathlib import Path
 
-from pylib.rise_of_machines import reconcile_expedition
 from util.pylib import log
+
+from finder.pylib.rise_of_machines import reconcile_expedition
 
 
 def main():

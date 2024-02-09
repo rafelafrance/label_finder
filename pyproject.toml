@@ -28,7 +28,6 @@ optional-dependencies.dev = [
     "build",
     "pre-commit",
     "pre-commit-hooks",
-    "python-lsp-server[all]",
     "ruff",
     "ruff-lsp",
 ]
@@ -36,12 +35,17 @@ optional-dependencies.dev = [
 [project.scripts]
 fix-herbarium-sheet-names = "finder.fix_herbarium_sheet_names:main"
 get-typewritten-labels = "finder.get_typewritten_labels:main"
-yolo-training = "finder.yolo_training:main"
-yolo-inference = "finder.yolo_inference:main"
+yolo-training = "finder.yolo_training_data:main"
+yolo-inference = "finder.yolo_inference_data:main"
 yolo-results-to-labels = "finder.yolo_results_to_labels:main"
 
 [tool.setuptools]
 py-modules = []
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["finder"]
+namespaces = false
 
 [tool.ruff]
 target-version = "py311"
