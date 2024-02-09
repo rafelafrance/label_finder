@@ -22,11 +22,13 @@ def to_yolo_image(path, yolo_images, yolo_size) -> tuple[int, int] | None:
     try:
         resized = image.resize((yolo_size, yolo_size))
         resized.save(yolo)
-        return image.size
 
     except IMAGE_EXCEPTIONS as err:
-        logging.error(f"Could not prepare {path.name}: {err}")
+        msg = f"Could not prepare {path.name}: {err}"
+        logging.exception(msg)
         return None
+
+    return image.size
 
 
 def sheet_image(path):
@@ -35,8 +37,10 @@ def sheet_image(path):
 
         try:
             image = Image.open(path).convert("RGB")
-            return image
 
         except IMAGE_EXCEPTIONS as err:
-            logging.error(f"Could not prepare {path.name}: {err}")
+            msg = f"Could not prepare {path.name}: {err}"
+            logging.exception(msg)
             return None
+
+        return image
