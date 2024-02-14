@@ -20,11 +20,7 @@ def parse_args():
         fromfile_prefix_chars="@",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description=textwrap.dedent(
-            """
-            This script converts YOLO results to label images.
-            Required CSV columns:
-                * "path": A path to the herbarium sheet image.
-           """,
+            """This script converts YOLO results to label images.""",
         ),
     )
 
@@ -37,12 +33,11 @@ def parse_args():
     )
 
     arg_parser.add_argument(
-        "--sheet-csv",
+        "--sheet-dir",
         type=Path,
         metavar="PATH",
         required=True,
-        help="""A CSV file containing all of the herbarium sheets paths fed to the
-            YOLO model. It's OK to use the CSV from training --label-csv.""",
+        help="""The directory containing all of the original herbarium sheet images.""",
     )
 
     arg_parser.add_argument(

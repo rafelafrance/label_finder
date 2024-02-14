@@ -1,27 +1,128 @@
-# Digi-Leap![Python application](https://github.com/rafelafrance/digi_leap/workflows/CI/badge.svg)
+# label_finder ![Python application](https://github.com/rafelafrance/label_finder/workflows/CI/badge.svg)
 
-Use a neural network to find labels on a herbarium sheet
+Use a neural network to find labels on a herbarium sheets.
 
-## Find Labels
+1. [Description](#Description)
+2. [Install](#Install)
+3. [Scenario: Label inference](#Label-inference)
+4. [Scenario: Model training](#Model-training)
+
+## Description
+
+We find labels with a custom trained YOLOv7 model (https://github.com/WongKinYiu/yolov7). You will need to download and setup this repository separately, and run its scripts for inference and training.
 
 [<img src="assets/show_labels.png" width="500" />](assets/show_labels.png)
 
-We find labels with a custom trained YOLOv7 model (https://github.com/WongKinYiu/yolov7).
-
 - Labels that the model classified as typewritten are outlined in orange
-- All other identified labels are outlined in teal.
+- Other identified labels are outlined in teal.
+- All label are extracted into their own image file, which may be used as input for an OCR engine.
 
-Local scripts:
-- `fix-herbarium-sheet-names`: I had a problem where herbarium sheet file names were given as URLs and it confused the Pillow (PIL) module so I renamed the files to remove problem characters. You may not need this script.
-- `yolo-training`: If you are training your own YOLO7 model then you may want to use this script to prepare the images of herbarium sheets for training. The herbarim images may be in all sorts of sizes, and model training requires that they're all uniformly sized.
-  - YOLO scripts also requires a CSV file containing the paths to the herbarium sheets and the class and location of the labels on that sheet.
-- `yolo-inference`: Prepare herbarium sheet images for inference; i.e. finding labels. The images must be in the same size the training data.
-- `yolo-results-to-labels`: This takes for output of the YOLO model and creates label images. The label name contains information about the YOLO results. The label name format:
-  - `<sheet name>_<label class>_<left pixel>_<top pixel>_<right pixel>_<bottom pixel>.jpg`
-  - For example: `my-herbarium-sheet_typewritten_2261_3580_3397_4611.jpg`
-- `filter_labels.py`: Move typewritten label images into a separate directory that are then available for further processing.
+## Install
 
-You will notice that there are no scripts for running the YOLO models directly. You will need to download that repository separately and run its scripts. Example invocations of YOLO scripts are below:
+You will need Git to clone this repository. You will also need to have Python3.11+ installed, as well as pip, a package manager for Python.
+You can install the requirements into your python environment like so:
+
+```bash
+git clone https://github.com/rafelafrance/label_finder.git
+cd /path/to/label_finder
+make install
+```
+
+You will also need to install [YOLO7](https://github.com/WongKinYiu/yolov7). You may follow the instructions given there. I find that if you clone the repository, set a virtual environment for that repository, and install the requirements into that virtual environment things work just fine.
+
+Every time you want to run any scripts in a new terminal session you will need to activate the virtual environment, once, before running them.
+
+```bash
+cd /path/to/label_finder
+source .venv/bin/activate
+```
+
+## Label inference
+
+### Requirements
+
+1. You must set up this and the YOLO7 repositories.
+2. You will need a YOLO7 model trained to find labels on herbarium sheets. I have an example one in this [zenodo]() link.
+3. You also need some images of herbarium sheets. I have some sample images in the same [zenodo]() link.
+
+### Optional: Clean up file names
+
+I had a problem where herbarium sheet file names were given as URLs, and it confused some modules, so I renamed the files to remove problem characters.
+
+An example:
+
+```bash
+fix-herbarium-sheet-names --sheet-dir ./data/herbarium/sheets
+```
+
+### Prepare the images for YOLO
+
+The images of herbarium sheets come in all different sizes. The model is trained on square images of a fixed size. The demo model was trained on 640x640 pixel color images. You need to resize the images to be square.
+
+An example:
+
+```bash
+yolo-inference --sheet-csv ./data/herbarium/sheets --yolo-images ./data/yolo/inference --yolo-size 640
+```
+
+### Run the YOLO model
+
+After training, I move the best trained model into `./data/yolo/models`. I only mention this because I need this as an argument below.
+
+**Note that you are running this script from the virtual environment in the yolo directory.**
+
+This is an example of how to run inference.
+
+```bash
+python detect.py \
+--weights ../label_finder/data/yolo/models/best.pt \
+--source ../label_finder/data/yolo/inference \
+--project ../label_finder/data/yolo/runs/inference/ \
+--name run_2024-02-14a \
+--exist-ok \
+--nosave \
+--save-txt \
+--save-conf \
+--conf-thres 0.1
+```
+
+- device: (Option not shown) If you want to use the CPU for inference then add the `--device cpu` option
+- weights: Model path
+- source: Directory containing images formatted for YOLO
+- save-txt: Save the results to the text files (one per input image)
+- save-conf: Save confidences in the result files
+- project: The root directory for saving the results
+- name: Save results to this directory under the project directory
+- exist-ok: It's ok for the output directory to exist
+- nosave: Do not save images
+- conf-thres: Confidence threshold before saving the label
+
+### Create labels from YOLO results
+
+After we've run YOLO, we need to take the results and put them back into a format we can use. Mostly, we're cutting the label images out of the herbarium sheet images. There is also image scaling and other things going on here.
+
+An example:
+
+```bash
+yolo-results-to-labels --yolo-labels ./data/yolo/runs/inference/run_2024-02-14a/labels --sheet-dir ./data/herbarium/sheets --label-dir ./data/herbarium/labels
+```
+
+Note that the `labels` is always created under the `name` dir, and "labels" refers to the labels given by the YOLO model and not herbarium labels. The names for the label images have this format:
+`<sheet stem>_<label class>_<left>_<top>_<right>_<bottom>.<sheet suffix>`
+
+If the sheet is named: `248106.jpg`, then a label may be named `248106_Typewritten_1261_51_1646_273.jpg`.
+
+### Optional: Filter typewritten labels
+
+This moves all labels that are classified as "Typewritten" into a separate directory. The OCR works best on  typewritten labels or barcodes with printing. It will do a fair job when labels with handwriting or a mix of typewriting & handwriting are neatly printed.
+
+I have noticed that the current example YOLO model tends to have a fair number of false positives but close to zero false negatives. Manually pruning the false positives is much easier than sorting all labels. YMMV.
+
+An example:
+
+`get-typewritten-labels --label-dir ./data/herbarium/labels --typewritten-dir ./data/herbarium/typewritten`
+
+## Model training
 
 ```bash
 python train.py \
@@ -34,17 +135,4 @@ python train.py \
 --hyp data/hyp.scratch.p5.yaml \
 --epochs 100 \
 --exist-ok
-```
-
-```bash
-python detect.py \
---weights runs/train/yolov7_e100/weights/best.pt \
---source inference-640/ \
---save-txt \
---save-conf \
---project runs/inference-640/yolov7_e100/ \
---exist-ok \
---nosave \
---name rom2_2022-10-03 \
---conf-thres 0.1
 ```

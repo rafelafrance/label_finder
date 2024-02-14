@@ -1,6 +1,3 @@
-import csv
-from pathlib import Path
-
 from tqdm import tqdm
 
 from finder.pylib import const, sheet_util
@@ -9,11 +6,7 @@ from finder.pylib import const, sheet_util
 def to_labels(args):
     args.label_dir.mkdir(exist_ok=True)
 
-    sheet_paths = {}
-    with args.sheet_csv.open() as f:
-        for row in csv.DictReader(f):
-            path = Path(row["path"])
-            sheet_paths[path.stem] = path
+    sheet_paths = {p.stem: p for p in args.sheet_dir}
 
     label_paths = sorted(args.yolo_labels.glob("*.txt"))
     for label_path in tqdm(label_paths):
