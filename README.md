@@ -124,6 +124,12 @@ An example:
 
 ## Model training
 
+### Build expedition
+
+### Reconcile expedition
+
+### Train model
+
 ```bash
 python train.py \
 --weights yolov7.pt \
