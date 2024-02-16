@@ -49,7 +49,7 @@ source .venv/bin/activate
 
 I had a problem where herbarium sheet file names were given as URLs, and it confused some modules, so I renamed the files to remove problem characters.
 
-An example:
+#### Example
 
 ```bash
 fix-herbarium-sheet-names --sheet-dir ./data/herbarium/sheets
@@ -59,7 +59,7 @@ fix-herbarium-sheet-names --sheet-dir ./data/herbarium/sheets
 
 The images of herbarium sheets come in all different sizes. The model is trained on square images of a fixed size. The demo model was trained on 640x640 pixel color images. You need to resize the images to be square.
 
-An example:
+#### Example
 
 ```bash
 yolo-inference --sheet-csv ./data/herbarium/sheets --yolo-images ./data/yolo/inference --yolo-size 640
@@ -101,7 +101,7 @@ python detect.py \
 
 After we've run YOLO, we need to take the results and put them back into a format we can use. Mostly, we're cutting the label images out of the herbarium sheet images. There is also image scaling and other things going on here.
 
-An example:
+#### Example
 
 ```bash
 yolo-results-to-labels --yolo-labels ./data/yolo/runs/inference/run_2024-02-14a/labels --sheet-dir ./data/herbarium/sheets --label-dir ./data/herbarium/labels
@@ -118,17 +118,59 @@ This moves all labels that are classified as "Typewritten" into a separate direc
 
 I have noticed that the current example YOLO model tends to have a fair number of false positives but close to zero false negatives. Manually pruning the false positives is much easier than sorting all labels. YMMV.
 
-An example:
+#### Example
 
 `get-typewritten-labels --label-dir ./data/herbarium/labels --typewritten-dir ./data/herbarium/typewritten`
 
 ## Model training
 
+To train a supervised model like YOLO you need data, and preferably lots of it. Which is a time-consuming task. We could have done this ourselves -- and maybe we should have -- but we opted to crowdsource this. To do this we used Notes from Nature, which is part of the [Zooniverse](https://www.zooniverse.org/), a scientifically oriented platform that crowdsources gathering biological data. The individual data gathering projects are called "expeditions".
+
+The expedition we created for this seemed straight-forward; give the volunteers an image of a herbarium sheet like the one shown above and have the volunteers draw the orange and teal boxes on the sheets. We have 3 volunteers draw the boxes on the same sheet, and I would reconcile the box coordinates for each sheet.
+
 ### Build expedition
+
+We package up a bunch of herbarium sheet images in Zooniverse format. Experts built the actual expedition code and workflow.
+
+#### Example
+
+```bash
+build-expedition --sheet-dir ./data/herbarium/sheets --expedition-dir ./data/expeditions/expedition_01 --reduce-by 2
+```
 
 ### Reconcile expedition
 
+#### Notes
+
+Oh, the best laid plans...
+
+The data we got back from the expeditions were not always of the highest quality. Most people did excellent work but a significant portion either did not "get" the box drawing task or were actively subverting the data collection process. Which means that it wasn't just a matter of finding overlapping boxes and taking the average of the box coordinate. Some folks drew a single box enclosing several labels (TODO show this), other times the boxes really didn't really cover the entire label, or had excessive borders around the label, and yet others just drew boxes randomly.
+
+If you can find 2 (or more) of 3 people that agree on a box then you can use that. Agreement here is defined as the overlap area is significant, measured as the box's intersection over union (IoU). For example an IoU >= 0.85. We also want the box categories (typewritten, etc.) to match. We wound up throwing away a lot of data.
+
+#### Prepare input
+
+You will need the output data from the Zooniverse expedition and you will also need access to the [label reconciliation script](https://github.com/juliema/label_reconciliations)
+
+Convert the output from Zooniverse into an "unreconciled" CSV like this:
+
+```bash
+cd /path/to/label_reconciliations
+source .venv/bin/activate
+./reconcile.py --unreconciled-csv ./data/expeditions/expedition_01.unreconciled.csv ./data/expeditions/expedition_01.csv
+```
+
+#### Example
+
+```bash
+reconcile-expedition --unreconciled-csv ./data/expeditions/expedition_01.unreconciled.csv --reconciled-csv ./data/expeditions/expedition_01.reconciled.csv --expand-by 2
+```
+
+**Note that the --expand-by factor must match the --reduce-by factor.**
+
 ### Train model
+
+TODO
 
 ```bash
 python train.py \

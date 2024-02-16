@@ -15,6 +15,7 @@ dependencies = [
     "numpy",
     "pandas",
     "pillow",
+    "pyarrow",
     "pycocotools",
     "python-dateutil",
     "scikit-image",
@@ -38,6 +39,8 @@ get-typewritten-labels = "finder.get_typewritten_labels:main"
 yolo-training = "finder.yolo_training_data:main"
 yolo-inference = "finder.yolo_inference_data:main"
 yolo-results-to-labels = "finder.yolo_results_to_labels:main"
+build-expedition = "finder.build_expedition:main"
+reconcile-expedition = "finder.reconcile_expedition:main:main"
 
 [tool.setuptools]
 py-modules = []

@@ -1,17 +1,29 @@
 #!/usr/bin/env python3
 import argparse
+import csv
 import textwrap
 from pathlib import Path
 
+from tqdm import tqdm
 from util.pylib import log
 
-from finder.pylib.yolo import inference_data
+from finder.pylib import sheet_util
 
 
 def main():
     log.started()
     args = parse_args()
-    inference_data.build(args)
+
+    args.yolo_images.mkdirs(exist_ok=True)
+
+    with args.sheet_csv.open() as csv_file:
+        reader = csv.DictReader(csv_file)
+        sheets = [r["path"] for r in reader]
+
+    for path in tqdm(sheets):
+        path = Path(path)
+        sheet_util.to_yolo_image(path, args.yolo_images, args.yolo_size)
+
     log.finished()
 
 

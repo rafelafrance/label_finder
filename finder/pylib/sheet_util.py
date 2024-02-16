@@ -15,7 +15,7 @@ IMAGE_EXCEPTIONS = (
 def to_yolo_image(path, yolo_images, yolo_size) -> tuple[int, int] | None:
     yolo = yolo_images / path.name
 
-    image = sheet_image(path)
+    image = get_sheet_image(path)
     if not image:
         return None
 
@@ -31,7 +31,7 @@ def to_yolo_image(path, yolo_images, yolo_size) -> tuple[int, int] | None:
     return image.size
 
 
-def sheet_image(path):
+def get_sheet_image(path):
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=UserWarning)  # No EXIF warnings
 
