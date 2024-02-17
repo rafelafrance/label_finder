@@ -1,8 +1,37 @@
 import numpy as np
+import numpy.typing as npt
 
 
-def find_box_groups(boxes: np.array, threshold: float = 0.8):
-    """Find overlapping sets of bounding boxes."""
+def find_box_groups(boxes: npt.NDArray, threshold: float = 0.8) -> npt.ArrayLike:
+    """
+    Find overlapping sets of bounding boxes.
+
+    Args:
+    ----
+        boxes: A 2D array of box coordinates shaped like np.array(N, 4).
+            Each box is given in left, top, right, bottom order.
+
+        threshold: Only consider boxes to overlap if the Intersection over Union (IoU))
+            is >= this value. The range is [0.0, 1.0]. A higher value means that fewer
+            boxes will match.
+
+    Returns:
+    -------
+        A 1D array of length N, that labels what group a box belongs to.
+
+    Example:
+    -------
+        boxes = np.array(
+            [
+                [100, 100, 400, 400],  # Group 1
+                [500, 500, 600, 600],  # ..... 2
+                [510, 510, 610, 610],  # ..... 2
+                [110, 110, 410, 410],  # ..... 1
+                [490, 490, 590, 590],  # ..... 2
+            ]
+        )
+        find_box_groups(boxes, 0.5) == [1, 2, 2, 1, 2]  # There are 2 label sets.
+    """
     if len(boxes) == 0:
         return np.array([])
 
@@ -14,10 +43,12 @@ def find_box_groups(boxes: np.array, threshold: float = 0.8):
 
     area = np.maximum(0.0, x1 - x0) * np.maximum(0.0, y1 - y0)
 
-    idx = area
-    idx = idx.argsort()
+    # Sort by area
+    idx = area.argsort()
 
+    # This holds the label set
     overlapping = np.zeros_like(idx)
+
     group = 0
     while len(idx) > 0:
         group += 1
@@ -28,8 +59,8 @@ def find_box_groups(boxes: np.array, threshold: float = 0.8):
 
         overlapping[curr] = group
 
-        found = True
-        start = 0
+        found = True  # Do we need to look for more overlapping boxes
+        start = 0  # Used to skip repeated searches
 
         # Every time we find new matches we need to check the new ones against the rest
         while found:
@@ -51,8 +82,8 @@ def find_box_groups(boxes: np.array, threshold: float = 0.8):
 
                 if len(iou_):
                     found = True
-                    overlapping[idx[iou_]] = group
-                    start = len(curr)
+                    overlapping[idx[iou_]] = group  # Mark the found boxes
+                    start = len(curr)  # Skip already searched boxes
                     curr = np.hstack((curr, idx[iou_]))  # Append to current indexes
                     idx = np.delete(idx, iou_)  # Remove all matching indexes
 
