@@ -19,7 +19,6 @@ We find labels with a custom trained YOLOv7 model (https://github.com/WongKinYiu
 
 ## Install
 
-You will need Git to clone this repository. You will also need to have Python3.11+ installed, as well as pip, a package manager for Python.
 You can install the requirements into your python environment like so:
 
 ```bash
@@ -69,13 +68,13 @@ yolo-inference --sheet-csv ./data/herbarium/sheets --yolo-images ./data/yolo/inf
 
 After training, I move the best trained model into `./data/yolo/models`. I only mention this because I need this as an argument below.
 
-**Note that you are running this script from the virtual environment in the yolo directory.**
+**Note that you are running this script from the virtual environment in the yolo directory, not in this directory or this virtual environment.**
 
 This is an example of how to run inference.
 
 ```bash
 python detect.py \
---weights ../label_finder/data/yolo/models/best.pt \
+--weights ../label_finder/data/yolo/models/yolov7.pt \
 --source ../label_finder/data/yolo/inference \
 --project ../label_finder/data/yolo/runs/inference/ \
 --name run_2024-02-14a \
