@@ -58,7 +58,7 @@ def main():
     log.finished()
 
 
-def merge_boxes(boxes: npt.NDArray, expand_by) -> dict:
+def merge_boxes(boxes: npt.NDArray, expand_by) -> dict[str, float]:
     """Get the outside dimensions of the boxes."""
     return {
         "left": np.min(boxes[:, 0]) * expand_by,
@@ -68,12 +68,13 @@ def merge_boxes(boxes: npt.NDArray, expand_by) -> dict:
     }
 
 
-def merge_types(types: npt.ArrayLike) -> dict:
+def merge_types(types: npt.ArrayLike) -> dict[str, str]:
     """Get the most common type."""
     counts = {c: 0 for c in CLASSES}
     for val in types:
         counts[val] += 1
-    return {"class": OTHER if counts[OTHER] > counts[TYPEWRITTEN] else TYPEWRITTEN}
+    cls: str = OTHER if counts[OTHER] > counts[TYPEWRITTEN] else TYPEWRITTEN
+    return {"class": cls}
 
 
 def get_sheet_boxes(unreconciled, sheet_column, box_columns, class_columns):

@@ -30,7 +30,7 @@ def main():
     log.finished()
 
 
-def get_sheets(label_csv) -> dict[list[dict]]:
+def get_sheets(label_csv) -> dict[str, list[dict]]:
     with label_csv.open() as csv_file:
         reader = csv.DictReader(csv_file)
         sheets = defaultdict(list)
