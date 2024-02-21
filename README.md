@@ -51,7 +51,7 @@ I had a problem where herbarium sheet file names were given as URLs, and it conf
 #### Example
 
 ```bash
-fix-herbarium-sheet-names --sheet-dir ./data/herbarium/sheets
+fix-herbarium-sheet-names --sheet-dir /path/to/herbarium/sheets
 ```
 
 ### Prepare the images for YOLO
@@ -61,14 +61,12 @@ The images of herbarium sheets come in all different sizes. The model is trained
 #### Example
 
 ```bash
-yolo-inference --sheet-csv ./data/herbarium/sheets --yolo-images ./data/yolo/inference --yolo-size 640
+yolo-inference --sheet-csv /path/to/herbarium/sheets --yolo-images /path/to/yolo/inference --yolo-size 640
 ```
 
 ### Run the YOLO model
 
-After training, I move the best trained model into `./data/yolo/models`. I only mention this because I need this as an argument below.
-
-**Note that you are running this script from the virtual environment in the yolo directory, not in this directory or this virtual environment.**
+_**Note that you are running this script from the virtual environment in the yolo directory, not in this directory or this virtual environment.**_
 
 This is an example of how to run inference.
 
@@ -103,7 +101,7 @@ After we've run YOLO, we need to take the results and put them back into a forma
 #### Example
 
 ```bash
-yolo-results-to-labels --yolo-labels ./data/yolo/runs/inference/run_2024-02-14a/labels --sheet-dir ./data/herbarium/sheets --label-dir ./data/herbarium/labels
+yolo-results-to-labels --yolo-labels /path/to/yolo/runs/inference/labels --sheet-dir /path/to/herbarium/sheets --label-dir /path/to/herbarium/labels
 ```
 
 Note that the `labels` is always created under the `name` dir, and "labels" refers to the labels given by the YOLO model and not herbarium labels. The names for the label images have this format:
@@ -119,7 +117,7 @@ I have noticed that the current example YOLO model tends to have a fair number o
 
 #### Example
 
-`get-typewritten-labels --label-dir ./data/herbarium/labels --typewritten-dir ./data/herbarium/typewritten`
+`get-typewritten-labels --label-dir /path/to/herbarium/labels --typewritten-dir /path/to/herbarium/typewritten/labels`
 
 ## Model training
 
@@ -134,7 +132,7 @@ We package up a bunch of herbarium sheet images in Zooniverse format. Experts bu
 #### Example
 
 ```bash
-build-expedition --sheet-dir ./data/herbarium/sheets --expedition-dir ./data/expeditions/expedition_01 --reduce-by 2
+build-expedition --sheet-dir /path/to/herbarium/sheets --expedition-dir /path/to/expedition --reduce-by 2
 ```
 
 ### Reconcile expedition
@@ -151,18 +149,18 @@ If you can find 2 (or more) of 3 people that agree on a box then you can use tha
 
 You will need the output data from the Zooniverse expedition and you will also need access to the [label reconciliation script](https://github.com/juliema/label_reconciliations)
 
-Convert the output from Zooniverse into an "unreconciled" CSV like this:
+Convert the output from Zooniverse into an "unreconciled" CSV using `label_reconciliations` like this:
 
 ```bash
 cd /path/to/label_reconciliations
 source .venv/bin/activate
-./reconcile.py --unreconciled-csv ./data/expeditions/expedition_01.unreconciled.csv ./data/expeditions/expedition_01.csv
+./reconcile.py --unreconciled-csv /path/to/expedition/unreconciled.csv /path/to/expedition/raw_data.csv
 ```
 
 #### Example
 
 ```bash
-reconcile-expedition --unreconciled-csv ./data/expeditions/expedition_01.unreconciled.csv --reconciled-csv ./data/expeditions/expedition_01.reconciled.csv --expand-by 2
+reconcile-expedition --unreconciled-csv /path/to/expedition/unreconciled.csv --reconciled-csv /path/to/expedition/reconciled.csv --expand-by 2
 ```
 
 **Note that the --expand-by factor must match the --reduce-by factor.**
