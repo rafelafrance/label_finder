@@ -68,24 +68,12 @@ yolo-inference --sheet-dir /path/to/herbarium/sheets --yolo-images /path/to/yolo
 
 _**Note that you are running this script from the virtual environment in the yolo directory, not in this directory or this virtual environment.**_
 
-This is an example of how to run inference.
-
-```bash
-python detect.py \
---weights ../label_finder/data/yolo/models/yolov7.pt \
---source ../label_finder/data/yolo/inference \
---project ../label_finder/data/yolo/runs/inference/ \o
---name run_2024-02-14a \
---exist-ok \
---nosave \
---save-txt \
---save-conf \
---conf-thres 0.1
-```
-
-- device: (Option not shown) If you want to use the CPU for inference then add the `--device cpu` option
-- weights: Model path
-- source: Directory containing images formatted for YOLO
+Notes for YOLO inference:
+- `--weights` The full path to you put the yolo model.
+- `--source` The directory where you put the herbarium sheet images. These are the resized images from the `yolo-inference` output.
+- `--project` A base path to where you want to put the yolo output. YOLO has a "project" directory which is the grandparent of where the output goes.
+- `--name` This is the directory name that will hold the actual output. It is nested underneath the `--project` directory. So if you have a --project of `/path/to/yolo/output/` and a --name of `run_2024-05-05` then the full path to the output is `/path/to/yolo/output/run_2024-05-05`.
+- YOLO will create one space delimited file per herbarium sheet with each line holding the identified label class, the label coordinates, and the confidence score for the label.
 - save-txt: Save the results to the text files (one per input image)
 - save-conf: Save confidences in the result files
 - project: The root directory for saving the results
@@ -93,6 +81,21 @@ python detect.py \
 - exist-ok: It's ok for the output directory to exist
 - nosave: Do not save images
 - conf-thres: Confidence threshold before saving the label
+
+This is an example of how to run inference.
+
+```bash
+python detect.py \
+--weights /path/to/yolov7/model/yolov7.pt \
+--source /path/to/images/prepared/for/yolov7 \
+--project /path/to/where/to/put/yolo/results \
+--name give_output_a_name \
+--exist-ok \
+--nosave \
+--save-txt \
+--save-conf \
+--conf-thres 0.1
+```
 
 ### Create labels from YOLO results
 

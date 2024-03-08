@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import logging
 import textwrap
 from pathlib import Path
 
@@ -21,7 +22,14 @@ def to_labels(args):
 
     sheet_paths = {p.stem: p for p in args.sheet_dir.glob("*")}
 
-    label_paths = sorted(args.yolo_labels.glob("*.txt"))
+    label_paths = sorted(args.yolo_results_dir.glob("*.txt"))
+
+    msg = (
+        f"Number of herbarium sheets = {len(sheet_paths)} "
+        f"Number of YOLO result files = {len(label_paths)}"
+    )
+    logging.info(msg)
+
     for label_path in tqdm(label_paths):
         sheet_path = sheet_paths.get(label_path.stem)
         if not sheet_path:
@@ -76,7 +84,7 @@ def parse_args():
     )
 
     arg_parser.add_argument(
-        "--yolo-labels",
+        "--yolo-results-dir",
         type=Path,
         metavar="PATH",
         required=True,
