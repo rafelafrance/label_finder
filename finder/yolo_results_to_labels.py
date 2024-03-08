@@ -17,9 +17,9 @@ def main():
 
 
 def to_labels(args):
-    args.label_dir.mkdir(exist_ok=True)
+    args.label_dir.mkdir(exist_ok=True, parents=True)
 
-    sheet_paths = {p.stem: p for p in args.sheet_dir}
+    sheet_paths = {p.stem: p for p in args.sheet_dir.glob("*")}
 
     label_paths = sorted(args.yolo_labels.glob("*.txt"))
     for label_path in tqdm(label_paths):

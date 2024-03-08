@@ -74,7 +74,7 @@ This is an example of how to run inference.
 python detect.py \
 --weights ../label_finder/data/yolo/models/yolov7.pt \
 --source ../label_finder/data/yolo/inference \
---project ../label_finder/data/yolo/runs/inference/ \
+--project ../label_finder/data/yolo/runs/inference/ \o
 --name run_2024-02-14a \
 --exist-ok \
 --nosave \
