@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import argparse
-import csv
 import textwrap
 from pathlib import Path
 
@@ -16,12 +15,9 @@ def main():
 
     args.yolo_images.mkdir(exist_ok=True, parents=True)
 
-    with args.sheet_csv.open() as csv_file:
-        reader = csv.DictReader(csv_file)
-        sheets = [r["path"] for r in reader]
+    sheets = list(args.sheet_dir.glob("*"))
 
     for path in tqdm(sheets):
-        path = Path(path)
         sheet_util.to_yolo_image(path, args.yolo_images, args.yolo_size)
 
     log.finished()
@@ -41,7 +37,7 @@ def parse_args():
     )
 
     arg_parser.add_argument(
-        "--sheet-csv",
+        "--sheet-dir",
         type=Path,
         metavar="PATH",
         required=True,

@@ -61,7 +61,7 @@ The images of herbarium sheets come in all different sizes. The model is trained
 #### Example
 
 ```bash
-yolo-inference --sheet-csv /path/to/herbarium/sheets --yolo-images /path/to/yolo/inference --yolo-size 640
+yolo-inference --sheet-dir /path/to/herbarium/sheets --yolo-images /path/to/yolo/inference --yolo-size 640
 ```
 
 ### Run the YOLO model
