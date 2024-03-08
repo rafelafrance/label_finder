@@ -14,7 +14,7 @@ def main():
     log.started()
     args = parse_args()
 
-    args.yolo_images.mkdirs(exist_ok=True)
+    args.yolo_images.mkdir(exist_ok=True, parents=True)
 
     with args.sheet_csv.open() as csv_file:
         reader = csv.DictReader(csv_file)
