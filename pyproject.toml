@@ -14,15 +14,7 @@ dependencies = [
     "Pillow",
     "numpy",
     "pandas",
-    "pillow",
     "pyarrow",
-    "pycocotools",
-    "python-dateutil",
-    "scikit-image",
-    "scipy",
-    "torch",
-    "torchmetrics",
-    "torchvision",
     "tqdm",
 ]
 optional-dependencies.dev = [
