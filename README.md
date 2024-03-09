@@ -27,7 +27,7 @@ cd /path/to/label_finder
 make install
 ```
 
-You will also need to install [YOLO7](https://github.com/WongKinYiu/yolov7). You may follow the instructions given there. I find that if you clone the repository, set a virtual environment for that repository, and install the requirements into that virtual environment things work just fine.
+You will also need to install [YOLO7](https://github.com/WongKinYiu/yolov7). You may follow the instructions given there. I find that if you clone the repository, set up a virtual environment for that repository, and install the requirements into that virtual environment things work just fine.
 
 Every time you want to run any scripts in a new terminal session you will need to activate the virtual environment, once, before running them.
 
@@ -46,7 +46,7 @@ source .venv/bin/activate
 
 ### Optional: Clean up file names
 
-I had a problem where herbarium sheet file names were given as URLs, and it confused some modules, so I renamed the files to remove problem characters.
+I had a problem where herbarium sheet file names were given as URLs, and it confused some modules, so I renamed the files to remove problem characters. Backup your files first.
 
 #### Example
 
@@ -56,12 +56,12 @@ fix-herbarium-sheet-names --sheet-dir /path/to/herbarium/sheets
 
 ### Prepare the images for YOLO
 
-The images of herbarium sheets come in all different sizes. The model is trained on square images of a fixed size. The demo model was trained on 640x640 pixel color images. You need to resize the images to be square.
+The images of herbarium sheets come in all different sizes. The model is trained on square images of a fixed size. The demo model was trained on 640x640 pixel color images. You need to resize the images to be of a uniform size.
 
 #### Example
 
 ```bash
-yolo-inference --sheet-dir /path/to/herbarium/sheets --yolo-images /path/to/yolo/inference --yolo-size 640
+yolo-inference --sheet-dir /path/to/herbarium/sheets --yolo-images /path/to/yolo/inference/images --yolo-size 640
 ```
 
 ### Run the YOLO model
@@ -87,8 +87,8 @@ This is an example of how to run inference.
 ```bash
 python detect.py \
 --weights /path/to/yolov7/model/yolov7.pt \
---source /path/to/images/prepared/for/yolov7 \
---project /path/to/where/to/put/yolo/results \
+--source /path/to/yolo/inference/images \
+--project /path/to/where/to/output/yolo/results \
 --name give_output_a_name \
 --exist-ok \
 --nosave \
