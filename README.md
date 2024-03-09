@@ -69,18 +69,18 @@ yolo-inference --sheet-dir /path/to/herbarium/sheets --yolo-images /path/to/yolo
 _**Note that you are running this script from the virtual environment in the yolo directory, not in this directory or this virtual environment.**_
 
 Notes for YOLO inference:
-- `--weights` The full path to you put the yolo model.
+- `--weights` The full path to where you put the yolo model.
 - `--source` The directory where you put the herbarium sheet images. These are the resized images from the `yolo-inference` output.
 - `--project` A base path to where you want to put the yolo output. YOLO has a "project" directory which is the grandparent of where the output goes.
 - `--name` This is the directory name that will hold the actual output. It is nested underneath the `--project` directory. So if you have a --project of `/path/to/yolo/output/` and a --name of `run_2024-05-05` then the full path to the output is `/path/to/yolo/output/run_2024-05-05`.
 - YOLO will create one space delimited file per herbarium sheet with each line holding the identified label class, the label coordinates, and the confidence score for the label.
-- save-txt: Save the results to the text files (one per input image)
-- save-conf: Save confidences in the result files
-- project: The root directory for saving the results
-- name: Save results to this directory under the project directory
-- exist-ok: It's ok for the output directory to exist
-- nosave: Do not save images
-- conf-thres: Confidence threshold before saving the label
+- --save-txt: Save the results to the text files (one per input image).
+- --save-conf: Save confidences in the result files.
+- --project: The root directory for saving the results.
+- --name: Save results to this directory under the project directory.
+- --exist-ok: It's ok for the output directory to exist.
+- --nosave: Do not save images.
+- --conf-thres: Confidence threshold before saving the label.
 
 This is an example of how to run inference.
 
@@ -114,7 +114,7 @@ If the sheet is named: `248106.jpg`, then a label may be named `248106_Typewritt
 
 ### Optional: Filter typewritten labels
 
-This moves all labels that are classified as "Typewritten" into a separate directory. The OCR works best on  typewritten labels or barcodes with printing. It will do a fair job when labels with handwriting or a mix of typewriting & handwriting are neatly printed.
+This moves all labels that are classified as "Typewritten" into a separate directory. The OCR works best on  typewritten labels or barcodes with printing. It will do a fair job when labels with handwriting or a mix of typewriting & handwriting if they are neatly printed.
 
 I have noticed that the current example YOLO model tends to have a fair number of false positives but close to zero false negatives. Manually pruning the false positives is much easier than sorting all labels. YMMV.
 
@@ -124,13 +124,13 @@ I have noticed that the current example YOLO model tends to have a fair number o
 
 ## Model training
 
-To train a supervised model like YOLO you need data, and preferably lots of it. Which is a time-consuming task. We could have done this ourselves -- and maybe we should have -- but we opted to crowdsource this. To do this we used Notes from Nature, which is part of the [Zooniverse](https://www.zooniverse.org/), a scientifically oriented platform that crowdsources gathering biological data. The individual data gathering projects are called "expeditions".
+To train a supervised model like YOLO you need data, and preferably lots of it. Which is a time-consuming task. We could have done this ourselves -- and maybe we should have -- but we opted to crowdsource this. To do this, we used Notes from Nature, which is part of the [Zooniverse](https://www.zooniverse.org/), a scientifically oriented platform that crowdsources gathering research data. In Notes from Nature, the individual data gathering projects are called "expeditions".
 
-The expedition we created for this seemed straight-forward; give the volunteers an image of a herbarium sheet like the one shown above and have the volunteers draw the orange and teal boxes on the sheets. We have 3 volunteers draw the boxes on the same sheet, and I would reconcile the box coordinates for each sheet.
+The expedition we created for gathering training data seemed straight-forward; give the volunteers an image of a herbarium sheet like the one shown above and have the volunteers draw the orange and teal boxes on the sheets. We have 3 volunteers draw the boxes on the same sheet, and I would reconcile the box coordinates for each sheet.
 
 ### Build expedition
 
-We package up a bunch of herbarium sheet images in Zooniverse format. Experts built the actual expedition code and workflow.
+We package up a bunch of herbarium sheet images in Zooniverse format. Experts who know Notes from Nature built the actual expedition code and workflow.
 
 #### Example
 
@@ -146,7 +146,7 @@ Oh, the best laid plans...
 
 The data we got back from the expeditions were not always of the highest quality. Most people did excellent work but a significant portion either did not "get" the box drawing task or were actively subverting the data collection process. Which means that it wasn't just a matter of finding overlapping boxes and taking the average of the box coordinate. Some folks drew a single box enclosing several labels (TODO show this), other times the boxes really didn't really cover the entire label, or had excessive borders around the label, and yet others just drew boxes randomly.
 
-If you can find 2 (or more) of 3 people that agree on a box then you can use that. Agreement here is defined as the overlap area is significant, measured as the box's intersection over union (IoU). For example an IoU >= 0.85. We also want the box categories (typewritten, etc.) to match. We wound up throwing away a lot of data.
+If we found 2 (or more) of 3 people that agreed on a box then we used that. Agreement here is defined as the overlap area is significant, measured as the box's intersection over union (IoU). For example an IoU >= 0.85. We also want the box categories (typewritten, etc.) to match. We wound up throwing away a lot of data.
 
 #### Prepare input
 
