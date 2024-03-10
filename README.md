@@ -1,4 +1,4 @@
-# label_finder ![Python application](https://github.com/rafelafrance/label_finder/workflows/CI/badge.svg)
+# label_finder ![Python application](https://github.com/rafelafrance/label_finder/workflows/CI/badge.svg)[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10802202.svg)](https://doi.org/10.5281/zenodo.10802202)
 
 Use a neural network to find labels on a herbarium sheets.
 
@@ -41,8 +41,8 @@ source .venv/bin/activate
 ### Requirements
 
 1. You must set up this and the YOLO7 repositories.
-2. You will need a YOLO7 model trained to find labels on herbarium sheets. I have an example one in this [zenodo]() link.
-3. You also need some images of herbarium sheets. I have some sample images in the same [zenodo]() link.
+2. You will need a YOLO7 model trained to find labels on herbarium sheets. I have an example one in this zenodo link.
+3. You also need some images of herbarium sheets. I have some sample images in the same zenodo link.
 
 ### Optional: Clean up file names
 
@@ -72,7 +72,7 @@ Notes for YOLO inference:
 - `--weights` The full path to where you put the yolo model.
 - `--source` The directory where you put the herbarium sheet images. These are the resized images from the `yolo-inference` output.
 - `--project` A base path to where you want to put the yolo output. YOLO has a "project" directory which is the grandparent of where the output goes.
-- `--name` This is the directory name that will hold the actual output. It is nested underneath the `--project` directory. So if you have a --project of `/path/to/yolo/output/` and a --name of `run_2024-05-05` then the full path to the output is `/path/to/yolo/output/run_2024-05-05`.
+- `--name` This is the directory name that will hold the actual output. It is nested underneath the `--project` directory. So if you have a --project of `/path/to/yolo/output` and a --name of `run_2024-05-05` then the full path to the output is `/path/to/yolo/output/run_2024-05-05`.
 - YOLO will create one space delimited file per herbarium sheet with each line holding the identified label class, the label coordinates, and the confidence score for the label.
 - --save-txt: Save the results to the text files (one per input image).
 - --save-conf: Save confidences in the result files.
@@ -87,9 +87,9 @@ This is an example of how to run inference.
 ```bash
 python detect.py \
 --weights /path/to/yolov7/model/yolov7.pt \
---source /path/to/yolo/inference/images \
---project /path/to/where/to/output/yolo/results \
---name give_output_a_name \
+--source /path/to/yolo/input/images \
+--project /path/to/yolo/output \
+--name give_yolo_output_a_name \
 --exist-ok \
 --nosave \
 --save-txt \
@@ -104,17 +104,17 @@ After we've run YOLO, we need to take the results and put them back into a forma
 #### Example
 
 ```bash
-yolo-results-to-labels --yolo-labels /path/to/yolo/runs/inference/labels --sheet-dir /path/to/herbarium/sheets --label-dir /path/to/herbarium/labels
+yolo-results-to-labels --yolo-labels /path/to/yolo/output --sheet-dir /path/to/herbarium/sheets --label-dir /path/to/output/labels
 ```
 
-Note that the `labels` is always created under the `name` dir, and "labels" refers to the labels given by the YOLO model and not herbarium labels. The names for the label images have this format:
+Note that the `labels` are always created under the `name` dir, and YOLO "labels" refers to the labels given by the YOLO model and not herbarium labels. The names for the label images have this format:
 `<sheet stem>_<label class>_<left>_<top>_<right>_<bottom>.<sheet suffix>`
 
 If the sheet is named: `248106.jpg`, then a label may be named `248106_Typewritten_1261_51_1646_273.jpg`.
 
 ### Optional: Filter typewritten labels
 
-This moves all labels that are classified as "Typewritten" into a separate directory. The OCR works best on  typewritten labels or barcodes with printing. It will do a fair job with handwritten labels if the handwriting is neatly printed.
+This moves all labels that are classified as "Typewritten" into a separate directory. The OCR works best on typewritten labels or barcodes with printing. It will do a fair job with handwritten labels if the handwriting is neatly printed.
 
 I have noticed that the current example YOLO model (v0.2.0) tends to have a fair number of false positives but close to zero false negatives. Manually pruning the false positives is much easier than sorting all labels. YMMV.
 
@@ -150,7 +150,7 @@ If we found 2 (or more) of 3 people that agreed on a box then we used that. Agre
 
 #### Prepare input
 
-You will need the output data from the Zooniverse expedition and you will also need access to the [label reconciliation script](https://github.com/juliema/label_reconciliations)
+You will need the output data from the Zooniverse expedition, and you will also need access to the [label reconciliation script](https://github.com/juliema/label_reconciliations)
 
 Convert the output from Zooniverse into an "unreconciled" CSV using `label_reconciliations` like this:
 
