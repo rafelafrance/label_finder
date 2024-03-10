@@ -27,7 +27,7 @@ cd /path/to/label_finder
 make install
 ```
 
-You will also need to install [YOLO7](https://github.com/WongKinYiu/yolov7). You may follow the instructions given there. I find that if you clone the repository, set up a virtual environment for that repository, and install the requirements into that virtual environment things work just fine.
+You will also need to install [YOLO7](https://github.com/WongKinYiu/yolov7). You may follow the instructions given there. I find that if you clone the repository, set up a virtual environment for that repository, and install the requirements into that virtual environment, things work just fine.
 
 Every time you want to run any scripts in a new terminal session you will need to activate the virtual environment, once, before running them.
 
@@ -114,9 +114,9 @@ If the sheet is named: `248106.jpg`, then a label may be named `248106_Typewritt
 
 ### Optional: Filter typewritten labels
 
-This moves all labels that are classified as "Typewritten" into a separate directory. The OCR works best on  typewritten labels or barcodes with printing. It will do a fair job when labels with handwriting or a mix of typewriting & handwriting if they are neatly printed.
+This moves all labels that are classified as "Typewritten" into a separate directory. The OCR works best on  typewritten labels or barcodes with printing. It will do a fair job with handwritten labels if the handwriting is neatly printed.
 
-I have noticed that the current example YOLO model tends to have a fair number of false positives but close to zero false negatives. Manually pruning the false positives is much easier than sorting all labels. YMMV.
+I have noticed that the current example YOLO model (v0.2.0) tends to have a fair number of false positives but close to zero false negatives. Manually pruning the false positives is much easier than sorting all labels. YMMV.
 
 #### Example
 

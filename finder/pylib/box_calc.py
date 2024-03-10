@@ -60,7 +60,7 @@ def find_box_groups(boxes: npt.NDArray, threshold: float = 0.8) -> npt.ArrayLike
         overlapping[curr] = group
 
         found = True  # Do we need to look for more overlapping boxes
-        start = 0  # Used to skip repeated searches
+        start = 0  # Skip already searched boxes
 
         # Every time we find new matches we need to check the new ones against the rest
         while found:
