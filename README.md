@@ -1,3 +1,5 @@
+**I no longer need to do this step when OCRing labels on images of herbarium sheets.**
+
 # label_finder ![Python application](https://github.com/rafelafrance/label_finder/workflows/CI/badge.svg)[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10802202.svg)](https://doi.org/10.5281/zenodo.10802202)
 
 Use a neural network to find labels on a herbarium sheets.
